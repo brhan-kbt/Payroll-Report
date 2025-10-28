@@ -1,5 +1,5 @@
 <x-app-layout>
     <div class="py-12 max-w-7xl mx-auto px-6 lg:px-8">
-        @livewire('payroll.index')
+        @livewire('payroll.report')
     </div>
 </x-app-layout>

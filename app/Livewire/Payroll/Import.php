@@ -16,7 +16,7 @@ class Import extends Component
     public $importing = false;
     public $importErrors = [];
     public $importStats = [];
-public $payrollMonth;
+    public $payrollMonth;
 
     protected $rules = [
         'file' => 'required|file|mimes:xlsx,csv,xls',
@@ -43,6 +43,10 @@ public $payrollMonth;
         $this->reset(['file', 'importErrors', 'importStats']);
     }
 
+    public function downloadSample()
+    {
+        return response()->download(public_path('payroll_sample.xlsx'));
+    }
     public function import()
     {
         $this->importing = true;
@@ -66,7 +70,7 @@ public $payrollMonth;
                 $allErrors[] = [
                     'row' => $failure->row(),
                     'employee_id' => $failure->values()['employee_id'] ?? 'N/A',
-                    'message' => implode(', ', $failure->errors())
+                    'message' => implode(', ', $failure->errors()),
                 ];
             }
 
@@ -79,7 +83,7 @@ public $payrollMonth;
             $this->importStats = [
                 'total' => $import->getTotalCount(),
                 'success' => $import->getSuccessCount(),
-                'errors' => count($allErrors)
+                'errors' => count($allErrors),
             ];
 
             if (empty($allErrors)) {
@@ -87,7 +91,6 @@ public $payrollMonth;
                 $this->dispatch('payrollImported');
                 // $this->closeImportModal();
             }
-
         } catch (\Exception $e) {
             session()->flash('error', 'Error importing file: ' . $e->getMessage());
         } finally {

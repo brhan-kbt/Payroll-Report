@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12 max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-12 max-w-7xl mx-auto px-6 lg:px-8">
         <div class="bg-white dark:bg-gray-800 shadow-xl sm:rounded-2xl p-8">
             <form action="{{ route('employees.update', $employee->id) }}" method="POST" class="space-y-6">
                 @csrf

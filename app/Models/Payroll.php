@@ -13,4 +13,9 @@ class Payroll extends Model
     {
         return $this->belongsTo(Employee::class);
     }
+
+    public function smsLogs()
+    {
+        return $this->hasMany(SmsLog::class);
+    }
 }

@@ -43,6 +43,17 @@ class EmployeesImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             return null;
         }
 
+
+            // Check if phone already exists
+        if (isset($row['phone']) && Employee::where('phone', $row['phone'])->exists()) {
+            $this->errors[] = [
+                'row' => $this->rowCount + 1,
+                'employee_id' => $row['employee_id'],
+                'message' => 'Duplicate Phone Number: ' . $row['phone']
+            ];
+            return null;
+        }
+
         $this->successCount++;
 
         return new Employee([

@@ -5,6 +5,7 @@ namespace App\Livewire\Employee;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Imports\EmployeesImport;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class Import extends Component
@@ -27,6 +28,10 @@ class Import extends Component
         'file.mimes' => 'The file must be a valid Excel file (xlsx, csv, xls).',
     ];
 
+    public function downloadSample()
+    {
+        return response()->download(public_path('sample_employees.xlsx'));
+    }
     public function openImportModal()
     {
         $this->resetValidation();
@@ -64,7 +69,7 @@ class Import extends Component
                 $allErrors[] = [
                     'row' => $failure->row(),
                     'employee_id' => $failure->values()['employee_id'] ?? 'N/A',
-                    'message' => implode(', ', $failure->errors())
+                    'message' => implode(', ', $failure->errors()),
                 ];
             }
 
@@ -77,7 +82,7 @@ class Import extends Component
             $this->importStats = [
                 'total' => $import->getTotalCount(),
                 'success' => $import->getSuccessCount(),
-                'errors' => count($allErrors)
+                'errors' => count($allErrors),
             ];
 
             if (empty($allErrors)) {
@@ -85,7 +90,6 @@ class Import extends Component
                 $this->dispatch('employeeImported');
                 // $this->closeImportModal();
             }
-
         } catch (\Exception $e) {
             session()->flash('error', 'Error importing file: ' . $e->getMessage());
         } finally {

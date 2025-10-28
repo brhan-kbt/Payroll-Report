@@ -7,7 +7,9 @@ use App\Http\Controllers\FcmController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SMSController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +39,17 @@ Route::middleware('auth')->group(function () {
         Route::resource('employees', EmployeeController::class);
         Route::resource('payrolls', PayrollController::class);
         Route::post('/employees/import', [EmployeeController::class, 'import'])->name('employees.import');
+        // afro/test-sms
+        Route::get('sms', [SMSController::class, 'index'])->name('sms.index');
+        Route::post('/send-sms', [SmsController::class, 'sendSms'])->name('sms.send');
+        Route::get('/search-employees', [SmsController::class, 'searchEmployees'])->name('sms.search-employees');
+        Route::post('/afro/test-sms', [SMSController::class, 'testSms'])->name('afro.test-sms');
+
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
+        Route::get('/reports/export/pdf', [ReportController::class, 'exportPDF'])->name('reports.export.pdf');
+        // settings.update.afro
+        Route::PUT('/settings/update/afro', [SettingController::class, 'updateAfro'])->name('settings.update.afro');
 
         Route::resource('posts', PostController::class);
         Route::resource('categories', CategoryController::class);
