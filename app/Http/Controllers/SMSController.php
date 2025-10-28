@@ -12,6 +12,15 @@ use Illuminate\Support\Facades\Validator;
 
 class SMSController extends Controller
 {
+
+    public function testSms(Request $request)
+    {
+        $phone = $request->phone;
+        $message = $request->message;
+        $smsService = new SmsService();
+        $response = $smsService->sendSms($phone, $message);
+        return response()->json($response);
+    }
     public function index()
     {
         $employees = Employee::orderBy('name')->get();
