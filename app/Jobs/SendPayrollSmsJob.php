@@ -52,9 +52,11 @@ class SendPayrollSmsJob implements ShouldQueue
                 return;
             }
 
+            Log::info("SendPayrollSmsJob: Sending SMS to employee".$employee->name);
             $smsService = new SmsService();
 
             $monthYear = \Carbon\Carbon::parse($payroll->payroll_month)->format('F Y');
+            Log::info("SendPayrollSmsJob: Payroll month is {$monthYear}");
 
             $message = "Hello {$employee->name},\n\n";
             $message .= "Here are your salary details for {$monthYear}:\n\n";
@@ -78,6 +80,7 @@ class SendPayrollSmsJob implements ShouldQueue
             $message .= "We appreciate your hard work and dedication. Thank you for being an important part of our team.\n\n";
             $message .= '— HR Department';
 
+            Log::info("SendPayrollSmsJob: SMS message: " . $message);
             // Check if phone number exists and is valid
             if (empty($employee->phone)) {
                 Log::error("SendPayrollSmsJob: Phone number missing for employee", [
@@ -93,6 +96,7 @@ class SendPayrollSmsJob implements ShouldQueue
             $smsResponse = $smsService->sendSms($phone, $message);
 
 
+            Log::info("SendPayrollSmsJob: SMS response: " . json_encode($smsResponse));
             // Create SmsLog with error handling
             try {
                 SmsLog::create([
