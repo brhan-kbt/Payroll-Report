@@ -29,7 +29,7 @@ class SmsService
     {
         if ($this->token && $this->apiUrl) {
             $response = $this->afroSendSingleSms($to, $message);
-            Log::info('SMS Response: ' . json_encode($response));
+            // Log::info('SMS Response: ' . json_encode($response));
 
             if ($this->isSuccess($response)) {
                 return [
