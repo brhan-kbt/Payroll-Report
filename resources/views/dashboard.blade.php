@@ -170,10 +170,10 @@
                                 <i class="fas fa-list group-hover:scale-110 transition-transform"></i>
                                 View Payrolls
                             </a>
-                            <a href="{{ route('payrolls.create') }}"
+                            <a href="{{ route('payrolls.index') }}"
                                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 group">
-                                <i class="fas fa-plus group-hover:scale-110 transition-transform"></i>
-                                Create Payroll
+                                <i class="fas fa-file-import group-hover:scale-110 transition-transform"></i>
+                                Import Payroll
                             </a>
                         </div>
                     </div>
