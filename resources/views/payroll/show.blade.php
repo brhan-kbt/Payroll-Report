@@ -71,7 +71,7 @@
 
         {{-- Net Pay --}}
         <div class="rounded-lg shadow p-5 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-gray-700 text-right mb-6">
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Net Pay: ህፍህግፍግህፍፍ
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Net Pay:
                 <span class="text-blue-700 dark:text-blue-400">{{ number_format($payrollData->net_pay, 2) }}</span>
             </h3>
             <p class="text-sm text-gray-600 dark:text-gray-400 italic mt-1">Amount in words: <span class="capitalize">{{ $payrollData->net_pay }} Birr</span></p>
