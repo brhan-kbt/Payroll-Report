@@ -75,7 +75,7 @@ class SmsService
         $message .= 'Net Pay: ' . number_format($payroll->net_pay, 2) . " ETB\n\n";
 
         $message .= "We appreciate your hard work and dedication. Thank you for being an important part of our team.\n\n";
-        $message .= '— HR Department';
+        $message .= '— Finance Department';
 
         // Format phone number
         $phone = $this->formatPhoneNumber($employee->phone);

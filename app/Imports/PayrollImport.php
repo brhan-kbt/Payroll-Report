@@ -66,18 +66,18 @@ class PayrollImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
         $payroll = new Payroll([
             'employee_id' => $employee->id,
             'basic_salary' => $row['basic_salary'] ?? 0,
-            'taxable_transport' => $row['taxable_transport_allowance'] ?? 0,
-            'overtime' => $row['total_overtime'] ?? 0,
-            'department_allowance' => $row['department_head_homeroom_allowance'] ?? 0,
-            'position_allowance' => $row['position_fuel_allowance'] ?? 0,
+            'taxable_transport' => $row['taxable_transport'] ?? 0,
+            'overtime' => $row['overtime'] ?? 0,
+            'department_allowance' => $row['department_allowance'] ?? 0,
+            'position_allowance' => $row['position_allowance'] ?? 0,
             'gross_earning' => $row['gross_earning'] ?? 0,
-            'pension_school' => $row['pension_11_school_cont'] ?? 0,
+            'pension_school' => $row['pension_school'] ?? 0,
             'income_tax' => $row['income_tax'] ?? 0,
-            'staff_pension' => $row['staff_cont_7_pension'] ?? 0,
+            'staff_pension' => $row['staff_pension'] ?? 0,
             'advance_loan' => $row['advance_loan'] ?? 0,
             'net_pay' => $row['net_pay'] ?? 0,
-            'labor_association' => $row['labor_association_cont'] ?? 0,
-            'social_committee' => $row['contribution_for_social_committee'] ?? 0,
+            'labor_association' => $row['labor_association'] ?? 0,
+            'social_committee' => $row['social_committee'] ?? 0,
             'allowance' => $row['allowance'] ?? 0,
             'payroll_month' => $this->payrollMonth . '-01',
             'payroll_date' => now(),
@@ -118,7 +118,7 @@ class PayrollImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
         $message .= 'Net Pay: ' . number_format($payroll->net_pay, 2) . " ETB\n\n";
 
         $message .= "We appreciate your hard work and dedication. Thank you for being an important part of our team.\n\n";
-        $message .= '— HR Department';
+        $message .= '— Finance Department';
 
         // Format phone number
         $phone = $this->smsService->formatPhoneNumber($employee->phone);
