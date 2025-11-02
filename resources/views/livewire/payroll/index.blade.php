@@ -65,6 +65,12 @@
                 </select>
                 <span class="text-sm text-gray-600 dark:text-gray-400">per page</span>
             </div>
+
+            <button id="bulkDeleteBtn"
+                class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center gap-2 hidden">
+                <i class="fas fa-trash"></i>
+                <span>Delete Selected</span>
+            </button>
         </div>
     </div>
 
@@ -83,6 +89,10 @@
                 <thead>
                     <tr
                         class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700">
+                        <th class="py-4 px-6 text-left">
+                            <input type="checkbox" name="selectAll" id="selectAll"
+                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                        </th>
                         <th class="py-4 px-6 text-left">
                             <div
                                 class="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-semibold text-sm uppercase tracking-wider">
@@ -131,6 +141,11 @@
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                     @forelse($payrolls as $payroll)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150 group">
+                            <td class="py-4 px-6">
+                                <input type="checkbox" name="payroll_ids[]" id="payroll_ids" value="{{ $payroll->id }}"
+                                    class="payroll-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                            </td>
+
                             <td class="py-4 px-6">
                                 <div class="flex items-center gap-3">
                                     <div
@@ -202,12 +217,13 @@
                                         <i class="fas fa-eye text-sm"></i>
                                     </a>
 
-                                    {{-- <!-- Download Button -->
-                                    <a href="{{ route('payrolls.download', $payroll) }}"
-                                       class="inline-flex items-center justify-center w-10 h-10 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 text-green-600 dark:text-green-400 rounded-xl transition-all duration-200 transform hover:scale-110 group/download"
-                                       title="Download Payslip">
-                                        <i class="fas fa-download text-sm"></i>
-                                    </a> --}}
+                                    {{-- delete payroll button   --}}
+                                    <a href="{{ route('payrolls.deletePayroll', $payroll) }}"
+                                        onclick="return confirm('Are you sure you want to delete this payroll?')"
+                                        class="inline-flex items-center justify-center w-10 h-10 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-xl transition-all duration-200 transform hover:scale-110 group/delete"
+                                        title="Delete Payroll">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </a>
 
                                     <!-- Send SMS Button -->
                                     <button wire:click="sendSms({{ $payroll->id }})"
@@ -221,7 +237,8 @@
                     @empty
                         <tr>
                             <td colspan="5" class="py-16 px-6 text-center">
-                                <div class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
+                                <div
+                                    class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
                                     <i class="fas fa-file-invoice-dollar text-5xl mb-4 opacity-50"></i>
                                     <p class="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">No payroll
                                         records found</p>
@@ -252,6 +269,71 @@
             </div>
         </div>
     @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Select All / Unselect All
+            $('#selectAll').on('change', function() {
+                $('.payroll-checkbox').prop('checked', $(this).is(':checked'));
+                toggleBulkDeleteButton();
+            });
+
+            // Individual selection
+            $(document).on('change', '.payroll-checkbox', function() {
+                const total = $('.payroll-checkbox').length;
+                const checked = $('.payroll-checkbox:checked').length;
+
+                // If all are selected -> selectAll true, otherwise false
+                $('#selectAll').prop('checked', total === checked);
+
+                toggleBulkDeleteButton();
+            });
+
+            // Toggle delete button visibility
+            function toggleBulkDeleteButton() {
+                const anySelected = $('.payroll-checkbox:checked').length > 0;
+                $('#bulkDeleteBtn').toggleClass('hidden', !anySelected);
+            }
+
+            // Bulk delete event
+            $('#bulkDeleteBtn').on('click', function(e) {
+                e.preventDefault();
+
+                const ids = $('.payroll-checkbox:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (ids.length === 0) {
+                    alert('Please select at least one payroll record to delete.');
+                    return;
+                }
+
+                if (!confirm(`Are you sure you want to delete ${ids.length} selected payroll(s)?`)) {
+                    return;
+                }
+
+                // Send AJAX request to delete selected payrolls
+                $.ajax({
+                    url: "{{ route('payrolls.bulkDelete') }}", // you'll create this route
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        ids: ids
+                    },
+                    success: function(response) {
+                        alert(response.message || 'Selected payrolls deleted successfully!');
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('Something went wrong while deleting. Please try again.');
+                    }
+                });
+            });
+
+        });
+    </script>
+
 
     <style>
         .pagination {

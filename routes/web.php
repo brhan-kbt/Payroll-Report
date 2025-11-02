@@ -38,6 +38,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('isAdmin')->group(function () {
         Route::resource('employees', EmployeeController::class);
         Route::resource('payrolls', PayrollController::class);
+        Route::get('/payrolls/deletepayroll/{payroll}', [PayrollController::class, 'deletePayroll'])->name('payrolls.deletePayroll');
+        Route::post('/payrolls/bulk-delete', [PayrollController::class, 'bulkDelete'])->name('payrolls.bulkDelete');
+
         Route::post('/employees/import', [EmployeeController::class, 'import'])->name('employees.import');
         // afro/test-sms
         Route::get('sms', [SMSController::class, 'index'])->name('sms.index');
