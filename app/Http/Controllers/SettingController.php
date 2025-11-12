@@ -18,7 +18,12 @@ class SettingController extends Controller
             'AFRO_OTP_EXPIRES_IN_SECONDS' => env('AFRO_OTP_EXPIRES_IN_SECONDS', 300),
             'AFRO_OPT_LENGTH' => env('AFRO_OPT_LENGTH', 6),
             'SHORT_CODE' => env('SHORT_CODE', '0000'),
+            'GEEZ_SMS_TOKEN' => env('GEEZ_SMS_TOKEN', ''),
+            'GEEZ_SMS_SHORTCODE_ID' => env('GEEZ_SMS_SHORTCODE_ID', ''),
+            'GEEZ_SMS_BASE_URL' => env('GEEZ_SMS_BASE_URL', ''),
+            'OTP_TTL_MINUTES' => env('OTP_TTL_MINUTES', 5),
         ];
+
         return view('settings.index', compact('settings'));
     }
 
@@ -26,6 +31,55 @@ class SettingController extends Controller
     public function create()
     {
         return view('settings.create');
+    }
+
+    public function updateGeez(Request $request)
+    {
+        $request->validate([
+            'GEEZ_SMS_TOKEN' => 'required|string',
+            'GEEZ_SMS_SHORTCODE_ID' => 'required|string',
+            'GEEZ_SMS_BASE_URL' => 'required|string',
+            'OTP_TTL_MINUTES' => 'required|integer',
+        ]);
+
+        // Path to .env
+        $envPath = base_path('.env');
+
+        if (!File::exists($envPath)) {
+            return back()->with('error', '.env file not found');
+        }
+
+        // Keys to update
+        $keys = ['GEEZ_SMS_TOKEN', 'GEEZ_SMS_SHORTCODE_ID', 'GEEZ_SMS_BASE_URL', 'OTP_TTL_MINUTES'];
+
+        // Read current .env content
+        $envContent = File::get($envPath);
+
+        foreach ($keys as $key) {
+            $value = $request->input($key);
+
+            // Prepare value with quotes if it contains spaces
+            if (str_contains($value, ' ')) {
+                $value = '"' . $value . '"';
+            }
+
+            // If key exists, replace it; otherwise, append it
+            if (preg_match("/^{$key}=.*$/m", $envContent)) {
+                $envContent = preg_replace("/^{$key}=.*$/m", "{$key}={$value}", $envContent);
+            } else {
+                $envContent .= "\n{$key}={$value}";
+            }
+        }
+
+        // Save updated .env
+        File::put($envPath, $envContent);
+
+        // Clear config cache to reflect changes immediately
+        if (app()->configurationIsCached()) {
+            Artisan::call('config:clear');
+        }
+
+        return back()->with('success', 'Geez SMS settings updated successfully.');
     }
     public function updateAfro(Request $request)
     {

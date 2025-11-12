@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/export/pdf', [ReportController::class, 'exportPDF'])->name('reports.export.pdf');
         // settings.update.afro
         Route::PUT('/settings/update/afro', [SettingController::class, 'updateAfro'])->name('settings.update.afro');
+        Route::PUT('/settings/update/geez', [SettingController::class, 'updateGeez'])->name('settings.update.geez');
 
         Route::resource('posts', PostController::class);
         Route::resource('categories', CategoryController::class);
