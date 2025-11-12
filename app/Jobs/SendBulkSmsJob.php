@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SendBulkSmsJob implements ShouldQueue
 {
@@ -37,11 +38,13 @@ class SendBulkSmsJob implements ShouldQueue
                 'status' => $smsResponse['status'] ?? 'failed',
                 'response' => json_encode($smsResponse),
             ]);
+            Log::info('SMS sent successfully');
         } catch (\Exception $e) {
+            Log::info('Failed to send SMS: ' . $e->getMessage());
             SmsLog::create([
                 'phone' => $this->recipient['phone'],
                 'message' => $this->message,
-                'status' => 'failed',
+                'status' => 'error',
                 'response' => json_encode(['error' => $e->getMessage()]),
             ]);
         }

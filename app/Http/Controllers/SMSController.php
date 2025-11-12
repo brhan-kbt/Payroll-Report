@@ -8,6 +8,7 @@ use App\Models\SmsLog;
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class SMSController extends Controller
@@ -189,7 +190,6 @@ class SMSController extends Controller
                 422,
             );
         }
-
         // ✅ Dispatch all jobs in one batch (no iteration)
         $batch = Bus::batch(collect($recipients)->map(fn($recipient) => new SendBulkSmsJob($recipient, $request->message)))->dispatch();
 

@@ -14,6 +14,11 @@ class SmsService
     protected $identifierId;
     protected $senderName;
     protected $callbackUrl;
+    protected $geezApiUrl;
+    protected $geezToken;
+    protected $geezShortCodeId;
+    protected $otpTtlMinutes;
+    protected $smsMode;
 
     public function __construct()
     {
@@ -23,24 +28,48 @@ class SmsService
         $this->identifierId = env('AFRO_IDENTIFIER_ID');
         $this->senderName = env('AFRO_SENDER_NAME');
         $this->callbackUrl = env('AFRO_CALLBACK_URL', ''); // optional
+
+        $this->geezApiUrl = env('GEEZ_SMS_BASE_URL') . '/api/v1/sms/send';
+        $this->geezToken = env('GEEZ_SMS_TOKEN');
+        $this->geezShortCodeId = env('GEEZ_SMS_SHORTCODE_ID');
+        $this->otpTtlMinutes = env('OTP_TTL_MINUTES', 5);
+        $this->smsMode = env('SMS_MODE', 1);
     }
 
     public function sendSms($to, $message, $templateId = null)
     {
         if ($this->token && $this->apiUrl) {
-            $response = $this->afroSendSingleSms($to, $message);
+            if($this->smsMode == 1) {
+                $response = $this->afroSendSingleSms($to, $message);
+            } elseif($this->smsMode == 2) {
+                $response = $this->geezSendSingleSms($to, $message);
+            }
             // Log::info('SMS Response: ' . json_encode($response));
 
-            if ($this->isSuccess($response)) {
-                return [
-                    'status' => 'success',
-                    'message' => 'SMS sent successfully',
-                ];
-            } else {
-                return [
-                    'status' => 'error',
-                    'message' => 'Failed to send SMS',
-                ];
+            if ($this->smsMode == 1) {
+                if ($this->isSuccess($response)) {
+                    return [
+                        'status' => 'success',
+                        'message' => 'SMS sent successfully',
+                    ];
+                } else {
+                    return [
+                        'status' => 'error',
+                        'message' => 'Failed to send SMS',
+                    ];
+                }
+            }elseif($this->smsMode == 2) {
+                if(isset($response['error']) && $response['error'] == false) {
+                    return [
+                        'status' => 'success',
+                        'message' => 'SMS sent successfully',
+                    ];
+                } else {
+                    return [
+                        'status' => 'error',
+                        'message' => 'Failed to send SMS',
+                    ];
+                }
             }
         } else {
             return [
@@ -125,13 +154,15 @@ class SmsService
     {
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
-        ])->timeout(60)->post($this->apiUrl, [
-            'from' => $this->identifierId,
-            'sender' => $this->senderName,
-            'to' => $to,
-            'message' => $message,
-            'callback' => $this->callbackUrl,
-        ]);
+        ])
+            ->timeout(60)
+            ->post($this->apiUrl, [
+                'from' => $this->identifierId,
+                'sender' => $this->senderName,
+                'to' => $to,
+                'message' => $message,
+                'callback' => $this->callbackUrl,
+            ]);
 
         if ($response->successful()) {
             return $response->json();
@@ -141,6 +172,29 @@ class SmsService
                 'message' => 'HTTP Error: ' . $response->status(),
             ];
         }
+    }
+
+    public function geezSendSingleSms($to, $message)
+    {
+        $response = Http::timeout(60)
+            ->asForm()
+            ->post($this->geezApiUrl, [
+                'token' => $this->geezToken,
+                'phone' => $to,
+                'msg' => $message,
+                'shortcode_id' => $this->geezShortCodeId,
+                // 'callback' => $this->callbackUrl,
+            ]);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return [
+            'status' => 'error',
+            'message' => 'HTTP Error: ' . $response->status(),
+            'body' => $response->body(),
+        ];
     }
 
     public function afroSendBulkSms($to, $message)
